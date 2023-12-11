@@ -1,0 +1,11 @@
+[Unit]
+Description=Turn on/off nat
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=iptables-restore -c /usr/sbin/nat.sh
+ExecStop=/usr/sbin/iptables -t nat --flush
+
+[Install]
+WantedBy=multi-user.target
