@@ -1,0 +1,33 @@
+---
+- name: Установка, запуск и проверка apache
+  hosts: servers
+  become: yes
+  tasks:
+    - name: Установка последней версии apache2
+      apt:
+        name: apache2
+        state: latest
+        update_cache: yes
+        cache_valid_time: 3600
+    - name: Отключаем AstraMode
+      lineinfile:
+        path: /etc/apache2/apache2.conf
+        insertafter: ^# AstraMode
+        line: AstraMode off
+    - name: Копируем индексные файлы
+      copy:
+        src: index-{{ stadiya }}.html
+        dest: /var/www/html/index.html
+    - name: Запускаем apache2
+      service:
+        name: apache2
+        state: restarted
+        enabled: yes
+    - name: Проверка работы веб-серверов
+      uri:
+        url: http://{{ ansible_host }}
+        return_content: yes
+      register: page
+    - name: Вывод содержимого веб-страницы
+      debug:
+        var: page.content
